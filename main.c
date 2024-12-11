@@ -2,18 +2,11 @@
 #include <math.h>
 #include <conio.h>
 #include "function.h"
-
-#define RED "\033[0;31m"
-#define GREEN "\033[0;32m"
-#define BLUE "\x1b[36m"
-#define YELLOW  "\x1b[33m"
-#define RESET "\033[0m"
-
+#include "color.h"
 
 int main() {
     double x = 0.0, a = 0.0, b = 0.0;
     double (*functionChoice)(double, double) = 0;
-    double (*fdChoice)(double, double) = 0;
     int choiceFunction = validInputChoice(GREEN"Chose function:\n"
                                           YELLOW"1. cos(t / x) - 2 * sin(1 / x) + 1 / x\n"
                                           "2. sin(ln(x)) - cos(ln(x)) + t * ln(x)\n"RESET,
@@ -26,7 +19,6 @@ int main() {
     switch (choiceFunction) {
         case '1':
             functionChoice = f1;
-            fdChoice = fd1;
             do {
                 a = validInputDouble(GREEN"Enter a (from 0 to 100):\n"RESET, conditionDoubleA1);
                 b = validInputDouble(GREEN"Enter b (from 0 to 100):\n"RESET, conditionDoubleB1);
@@ -36,7 +28,6 @@ int main() {
             break;
         case '2':
             functionChoice = f2;
-            fdChoice = fd2;
             do {
                 a = validInputDouble(GREEN"Enter a (from 0 to 100):\n"RESET, conditionDoubleA2);
                 b = validInputDouble(GREEN"Enter b (from 0 to 100):\n"RESET, conditionDoubleB2);
@@ -55,8 +46,9 @@ int main() {
             printf("x = %.*lf\n", precision, x);
             break;
         case '2':
-            x = newtonMethod(functionChoice, fdChoice, a, b, t, epsilon);
-            printf("x = %.*lf\n", precision, x);
+            //x = newtonMethod(functionChoice, fdChoice, a, b, t, epsilon);
+            //x = newtonMethod2(functionChoice, a, b, t, epsilon);
+            printf(BLUE"x = %.*lf\n"RESET, precision, x);
             break;
         default:
             printf(RED"Invalid input"RESET);
@@ -65,3 +57,4 @@ int main() {
     getch();
     return 0;
 }
+//x = newton_method(a, b, t, epsilon, functionChoice);
