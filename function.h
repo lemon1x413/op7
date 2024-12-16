@@ -1,48 +1,49 @@
 #ifndef OP7_FUNCTION_H
 #define OP7_FUNCTION_H
+
 #include "color.h"
+#include <stdbool.h>
 
 #define MIN_EPS 1e-15
 #define MAX_EPS 1e-1
-#define MIN_T -1000
-#define MAX_T 1000
-#define MIN_A -1000
-#define MAX_A 1000
-#define MIN_B -1000
-#define MAX_B 1000
-#define STEP 1e-5
+#define MIN_T -100
+#define MAX_T 100
+#define MIN_RANGE -100
+#define MAX_RANGE 100
+#define STEP 1e-6
 #define MAX_ITER 1e4
+#define MAX_ROOTS 10000
 
-char conditionDoubleA1(double value) {
-    return ((value < MIN_A || value > MAX_A) || value == 0.0);
-}
-
-char conditionDoubleA2(double value) {
-    return (value <= 0.0);
-}
-
-char conditionDoubleT(double value) {
+bool conditionDoubleT(double value) {
     return (value < MIN_T || value > MAX_T);
 }
 
-char conditionDoubleB1(double value) {
-    return ((value < MIN_B || value > MAX_B) || value == 0.0);
+bool conditionDoubleA1(double value) {
+    return ((value < MIN_RANGE || value > MAX_RANGE) || value == 0.0);
 }
 
-char conditionDoubleB2(double value) {
-    return (value <= 0.0);
+bool conditionDoubleB1(double value) {
+    return ((value < MIN_RANGE || value > MAX_RANGE) || value == 0.0);
 }
 
-char conditionDoubleEpsilon(double value) {
+bool conditionDoubleA2(double value) {
+    return (value < 1e-15);
+}
+
+bool conditionDoubleB2(double value) {
+    return (value < 1e-15);
+}
+
+bool conditionDoubleEpsilon(double value) {
     return (value < MIN_EPS || value > MAX_EPS);
 }
 
-double validInputDouble(char *message, char (*condition)(double)) {
+double validInputDouble(char *message, bool (*condition)(double)) {
     double value = 0;
     int validInput = 0;
     do {
         printf("%s", message);
-            validInput = scanf("%lf", &value);
+        validInput = scanf("%lf", &value);
         if (validInput != 1 || condition(value)) {
             printf(RED"Invalid input\n"RESET);
         }
@@ -51,15 +52,14 @@ double validInputDouble(char *message, char (*condition)(double)) {
     return value;
 }
 
-int validInputChoice(char *message, int choice1, int choice2) {
-    int value = 0;
+char validInputChoice(char *message, char choice1, char choice2) {
+    char value = 0;
     do {
         printf("%s", message);
         value = getch();
         if (value != choice1 && value != choice2) {
             printf(RED"Invalid input\n"RESET);
         }
-        fflush(stdin);
     } while (value != choice1 && value != choice2);
     return value;
 }
@@ -68,78 +68,120 @@ double f1(double x, double t) {
     return (cos(t / x) - 2.0 * sin(1.0 / x) + 1.0 / x);
 }
 
-/*double fd1(double x, double t) {
-    return ((t * sin(t / x) + 2.0 * cos(1.0 / x) - 1.0) / (x * x));
-}*/
-
 double f2(double x, double t) {
     return (sin(log(x)) - cos(log(x)) + t * log(x));
 }
 
-/*double fd2(double x, double t) {
-    return ((sin(log(x)) + cos(log(x)) + t ) / x);
-}*/
+double fd2(double x, double t) {
+    return ((sin(log(x)) + cos(log(x)) + t) / x);
+}
 
+double fd1(double x, double t) {
+    return ((t * sin(t / x) + 2.0 * cos(1.0 / x) - 1.0) / (x * x));
+}
 
+bool isAsymptote(double a, double b) {
+    return fabs(a) > 1e6 || fabs(b) > 1e6 || fabs(a - b) > 1e6;
+}
+
+bool uniqueRoot(double roots[], int count, double new_root, double epsilon) {
+    for (int i = 0; i < count; i++) {
+        if (fabs(roots[i] - new_root) < epsilon) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+bool rootInInterval(double x, double a, double b) {
+    if (x < a || x > b) {
+        printf(RED"Root is out of the given interval.\n"RESET);
+        return 0;
+    }
+    return 1;
+}
 
 double halfDivisionMethod(double (*f)(double, double), double a, double b, double t, double epsilon) {
-    double x, delta;
+    double delta = 0;
+    int iter = 0;
+    double x = 0, fa = 0, fx = 0;
     do {
-        delta = fabs(b - a);
         x = (a + b) / 2.0;
-        if ((f(a, t)) * f(x, t) > 0.0) {
-            a = x;
-        } else {
-            b = x;
+        delta = fabs(b - a);
+        fa = f(a, t);
+        fx = f(x, t);
+        if (isnan(fa) || isnan(fx)) {
+            printf(RED"Function has a discontinuity in the interval [%lf, %lf]. Skipping...\n"RESET, a, b);
+            return NAN;
+        }
+        fa * fx > 0
+                ? (a = x)
+                : (b = x);
+        iter++;
+        if (iter > MAX_ITER) {
+            printf(RED"Maximum iterations reached. The method may not converge.\n"RESET);
+            return NAN;
         }
     } while (delta > epsilon);
     return x;
 }
 
-double newtonMethod(double (*f)(double, double), double (*fd)(double, double), double a, double b, double t, double epsilon) {
-    double x = f(b,t), delta = 0.0;
+double newtonMethod(double (*f)(double, double), double (*df)(double, double), double a, double t, double epsilon) {
+    double x = a;
+    double delta;
+    int iter = 0;
     do {
-        delta = f(x, t) / fd(x, t);
+        double derivative = df(x, t);
+        delta = f(x, t) / derivative;
         x -= delta;
+        iter++;
+        if (iter > MAX_ITER) {
+            printf(RED"Newton's method did not converge within the maximum number of iterations.\n"RESET);
+            return NAN;
+        }
     } while (fabs(delta) > epsilon);
     return x;
 }
 
-double newtonMethod2(double (*f)(double, double), double a, double b, double t, double epsilon) {
-    double x = f(b,t), fd = 0.0, delta = 0.0;
-    do {
-        fd = f(x + a, t) / a;
-        delta = f(x, t) / fd;
-        x -= delta;
-    } while (fabs(delta) > epsilon);
-    return x;
+void
+findAllRoots(double (*f)(double, double), double (*df)(double, double), double a, double b, double t, double epsilon,
+             int method) {
+    double left = a;
+    int precision = fabs(log10(epsilon));
+    int rootsFound = 0;
+    double roots[MAX_ROOTS] = {0};
+    while (left < b) {
+        double right = fmin(left + STEP, b);
+        double fLeft = f(left, t);
+        double fRight = f(right, t);
+        if (isAsymptote(fLeft, fRight)) {
+            left = right;
+            continue;
+        }
+        if (fLeft * fRight <= 0) {
+            double x = 0;
+            switch (method) {
+                case '1':
+                    x = halfDivisionMethod(f, left, right, t, epsilon);
+                    break;
+                case '2':
+                    x = newtonMethod(f, df, left, t, epsilon);
+                    break;
+                default:
+                    printf(RED"Invalid input\n"RESET);
+                    break;
+            }
+            if (uniqueRoot(roots, rootsFound, x, epsilon) && rootInInterval(x, a, b) && !isnan(x)) {
+                roots[rootsFound] = x;
+                printf(BLUE"Root x%02d: x = %.*lf\n"RESET, rootsFound, precision, x);
+                rootsFound++;
+            }
+        }
+        left = right;
+    }
+    if (rootsFound == 0) {
+        printf(RED"No roots found in the given interval.\n"RESET);
+    }
 }
 
-/*double newton_method(double a, double b, double t, double epsilon, double (*function)(double, double)) {
-    double delta = 0;
-    double fd = 0;
-    int iterations = 0;
-    double x = (a + b) / 2.0;
-    do {
-        double fx = function(x, t);
-        if (isnan(fx)) {
-            printf(RED"Function is undefined at x = %lf.\n"RESET, x);
-            return NAN;
-        }
-        fd = (function(x + STEP, t) - fx) / STEP;
-        if (fabs(fd) < 1e-15) {
-            printf(RED"Derivative too small at x = %lf. The method may not converge.\n"RESET, x);
-            return NAN;
-        }
-        delta = fx / fd;
-        x -= delta;
-        iterations++;
-        if (iterations > MAX_ITER) {
-            printf(RED"Too many iterations.\n"RESET);
-            return NAN;
-        }
-    } while (fabs(delta) > epsilon);
-    printf("x = %.3d\n", iterations);
-    return x;
-}*/
 #endif

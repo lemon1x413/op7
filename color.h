@@ -7,4 +7,4 @@
 #define YELLOW  "\x1b[33m"
 #define RESET "\033[0m"
 
-#endif //OP7_COLOR_H
+#endif

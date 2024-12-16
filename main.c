@@ -4,57 +4,59 @@
 #include "function.h"
 #include "color.h"
 
+#define ENTER 13
+
 int main() {
-    double x = 0.0, a = 0.0, b = 0.0;
-    double (*functionChoice)(double, double) = 0;
-    int choiceFunction = validInputChoice(GREEN"Chose function:\n"
-                                          YELLOW"1. cos(t / x) - 2 * sin(1 / x) + 1 / x\n"
-                                          "2. sin(ln(x)) - cos(ln(x)) + t * ln(x)\n"RESET,
-                                          '1', '2');
-    int choiceMethod = validInputChoice(GREEN"Chose method:\n"
-                                        YELLOW"1. Half division method\n"
-                                        "2. Newton method\n"RESET,
-                                        '1', '2');
-    double t = validInputDouble(GREEN"Enter t (from -1000 to 1000):\n"RESET, conditionDoubleT);
-    switch (choiceFunction) {
-        case '1':
-            functionChoice = f1;
-            do {
-                a = validInputDouble(GREEN"Enter a (from 0 to 100):\n"RESET, conditionDoubleA1);
-                b = validInputDouble(GREEN"Enter b (from 0 to 100):\n"RESET, conditionDoubleB1);
-                if (a >= b)
-                    printf(RED"Value of a must be less the value of b."RESET);
-            } while (a >= b);
-            break;
-        case '2':
-            functionChoice = f2;
-            do {
-                a = validInputDouble(GREEN"Enter a (from 0 to 100):\n"RESET, conditionDoubleA2);
-                b = validInputDouble(GREEN"Enter b (from 0 to 100):\n"RESET, conditionDoubleB2);
-            } while (a >= b);
-            break;
-        default:
-            printf(RED"Invalid input"RESET);
-            break;
-    }
-    double epsilon = validInputDouble(GREEN"Enter precision of calculations (from 1e-15 to 1e-1):\n"RESET,
-                                      conditionDoubleEpsilon);
-    unsigned precision = (unsigned) fabs(log10(epsilon));
-    switch (choiceMethod) {
-        case '1':
-            x = halfDivisionMethod(functionChoice, a, b, t, epsilon);
-            printf("x = %.*lf\n", precision, x);
-            break;
-        case '2':
-            //x = newtonMethod(functionChoice, fdChoice, a, b, t, epsilon);
-            //x = newtonMethod2(functionChoice, a, b, t, epsilon);
-            printf(BLUE"x = %.*lf\n"RESET, precision, x);
-            break;
-        default:
-            printf(RED"Invalid input"RESET);
-            break;
-    }
-    getch();
+    do {
+        double a = 0.0, b = 0.0;
+        double (*functionChoice)(double, double) = 0;
+        double (*derivativeChoice)(double, double) = 0;
+        printf(YELLOW"This program finds all roots in the given interval\n"RESET);
+        char choiceFunction = validInputChoice(GREEN"Chose function:\n"
+                                               YELLOW"1. cos(t / x) - 2 * sin(1 / x) + 1 / x\n"
+                                               "2. sin(ln(x)) - cos(ln(x)) + t * ln(x)\n"RESET,
+                                               '1', '2');
+        choiceFunction == '1'
+                        ? printf(BLUE"You choose function: \ncos(t / x) - 2 * sin(1 / x) + 1 / x\n"RESET)
+                        : printf(BLUE"You choose function: \nsin(ln(x)) - cos(ln(x)) + t * ln(x)\n"RESET);
+        char choiceMethod = validInputChoice(GREEN"Chose method:\n"
+                                             YELLOW"1. Half division method\n"
+                                             "2. Newton method\n"RESET,
+                                             '1', '2');
+        choiceMethod == '1'
+                        ? printf(BLUE"You choose half division method\n"RESET)
+                        : printf(BLUE"You choose Newton method\n"RESET);
+        double t = validInputDouble(GREEN"Enter t (from -100 to 100):\n"RESET, conditionDoubleT);
+        printf(GREEN"Enter intervals of x (from a to b):\n"RESET);
+        switch (choiceFunction) {
+            case '1':
+                functionChoice = f1;
+                derivativeChoice = fd1;
+                do {
+                    a = validInputDouble(GREEN"Enter a (from -100 to 100)[not 0]:\n"RESET, conditionDoubleA1);
+                    b = validInputDouble(GREEN"Enter b (from -100 to 100)[not 0]:\n"RESET, conditionDoubleB1);
+                    if (a >= b)
+                        printf(RED"Value of a must be less the value of b.\n"RESET);
+                } while (a >= b);
+                break;
+            case '2':
+                functionChoice = f2;
+                derivativeChoice = fd2;
+                do {
+                    a = validInputDouble(GREEN"Enter a (from 1e-15 to 100):\n"RESET, conditionDoubleA2);
+                    b = validInputDouble(GREEN"Enter b (from 1e-15 to 100):\n"RESET, conditionDoubleB2);
+                    if (a >= b)
+                        printf(RED"Value of a must be less the value of b.\n"RESET);
+                } while (a >= b);
+                break;
+            default:
+                printf(RED"Invalid input"RESET);
+                break;
+        }
+        double epsilon = validInputDouble(GREEN"Enter precision of calculations (from 1e-15 to 1e-1):\n"RESET,
+                                          conditionDoubleEpsilon);
+        findAllRoots(functionChoice, derivativeChoice, a, b, t, epsilon, choiceMethod);
+        printf(GREEN"Press ENTER to continue, or any other key to exit.\n"RESET);
+    } while (getch() == ENTER);
     return 0;
 }
-//x = newton_method(a, b, t, epsilon, functionChoice);
