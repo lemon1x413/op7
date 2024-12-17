@@ -99,10 +99,6 @@ double halfDivisionMethod(double (*function)(double, double), double a, double b
         delta = fabs(b - a);
         fa = function(a, t);
         fx = function(x, t);
-        if (isnan(fa) || isnan(fx)) {
-            printf(RED"Function has a discontinuity in the interval [%lf, %lf]. Skipping...\n"RESET, a, b);
-            return NAN;
-        }
         fa * fx > 0
                 ? (a = x)
                 : (b = x);
