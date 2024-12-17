@@ -18,11 +18,11 @@ bool conditionDoubleT(double value) {
     return (value < MIN_T || value > MAX_T);
 }
 
-bool conditionDoubleIntervals1(double value) {
+bool conditionDoubleIntervalsCos(double value) {
     return ((value < MIN_RANGE || value > MAX_RANGE) || value == 0.0);
 }
 
-bool conditionDoubleIntervals2(double value) {
+bool conditionDoubleIntervalsSin(double value) {
     return (value < 1e-15);
 }
 
@@ -56,19 +56,19 @@ char validInputChoice(char *message, char choice1, char choice2) {
     return value;
 }
 
-double f1(double x, double t) {
+double equationCos(double x, double t) {
     return (cos(t / x) - 2.0 * sin(1.0 / x) + 1.0 / x);
 }
 
-double f2(double x, double t) {
+double equationSin(double x, double t) {
     return (sin(log(x)) - cos(log(x)) + t * log(x));
 }
 
-double fd1(double x, double t) {
+double equationDerivativeCos(double x, double t) {
     return ((t * sin(t / x) + 2.0 * cos(1.0 / x) - 1.0) / (x * x));
 }
 
-double fd2(double x, double t) {
+double equationDerivativeSin(double x, double t) {
     return ((sin(log(x)) + cos(log(x)) + t) / x);
 }
 
@@ -89,15 +89,15 @@ bool rootInInterval(double x, double a, double b) {
     return true;
 }
 
-double halfDivisionMethod(double (*f)(double, double), double a, double b, double t, double epsilon) {
+double halfDivisionMethod(double (*function)(double, double), double a, double b, double t, double epsilon) {
     double delta = 0;
     int iter = 0;
     double x = 0, fa = 0, fx = 0;
     do {
         x = (a + b) / 2.0;
         delta = fabs(b - a);
-        fa = f(a, t);
-        fx = f(x, t);
+        fa = function(a, t);
+        fx = function(x, t);
         if (isnan(fa) || isnan(fx)) {
             printf(RED"Function has a discontinuity in the interval [%lf, %lf]. Skipping...\n"RESET, a, b);
             return NAN;
@@ -114,13 +114,13 @@ double halfDivisionMethod(double (*f)(double, double), double a, double b, doubl
     return x;
 }
 
-double newtonMethod(double (*f)(double, double), double (*df)(double, double), double a, double t, double epsilon) {
+double newtonMethod(double (*function)(double, double), double (*functionDerivative)(double, double), double a, double t, double epsilon) {
     double x = a;
     double delta;
     int iter = 0;
     do {
-        double derivative = df(x, t);
-        delta = f(x, t) / derivative;
+        double derivative = functionDerivative(x, t);
+        delta = function(x, t) / derivative;
         x -= delta;
         iter++;
         if (iter > MAX_ITER) {
@@ -131,15 +131,15 @@ double newtonMethod(double (*f)(double, double), double (*df)(double, double), d
     return x;
 }
 
-void findAllRoots(double (*f)(double, double), double (*df)(double, double), double a, double b, double t, double epsilon, int method) {
+void calculation(double (*function)(double, double), double (*functionDerivative)(double, double), double a, double b, double t, double epsilon, int method) {
     double left = a;
     int precision = fabs(log10(epsilon));
     int rootsFound = 0;
     double roots[MAX_ROOTS] = {};
     while (left < b) {
         double right = fmin(left + STEP, b);
-        double fLeft = f(left, t);
-        double fRight = f(right, t);
+        double fLeft = function(left, t);
+        double fRight = function(right, t);
         if (left <= 0 && right >= 0) {
             left = right;
             continue;
@@ -148,10 +148,10 @@ void findAllRoots(double (*f)(double, double), double (*df)(double, double), dou
             double x = 0;
             switch (method) {
                 case '1':
-                    x = halfDivisionMethod(f, left, right, t, epsilon);
+                    x = halfDivisionMethod(function, left, right, t, epsilon);
                     break;
                 case '2':
-                    x = newtonMethod(f, df, left, t, epsilon);
+                    x = newtonMethod(function, functionDerivative, left, t, epsilon);
                     break;
                 default:
                     printf(RED"Invalid input\n"RESET);

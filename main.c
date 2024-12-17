@@ -30,21 +30,21 @@ int main() {
         printf(GREEN"Enter intervals of x (from a to b):\n"RESET);
         switch (choiceFunction) {
             case '1':
-                functionChoice = f1;
-                derivativeChoice = fd1;
+                functionChoice = equationCos;
+                derivativeChoice = equationDerivativeCos;
                 do {
-                    a = validInputDouble(GREEN"Enter a (from -100 to 100)[not 0]:\n"RESET, conditionDoubleIntervals1);
-                    b = validInputDouble(GREEN"Enter b (from -100 to 100)[not 0]:\n"RESET, conditionDoubleIntervals1);
+                    a = validInputDouble(GREEN"Enter a (from -100 to 100)[not 0]:\n"RESET, conditionDoubleIntervalsCos);
+                    b = validInputDouble(GREEN"Enter b (from -100 to 100)[not 0]:\n"RESET, conditionDoubleIntervalsCos);
                     if (a >= b)
                         printf(RED"Value of a must be less the value of b.\n"RESET);
                 } while (a >= b);
                 break;
             case '2':
-                functionChoice = f2;
-                derivativeChoice = fd2;
+                functionChoice = equationSin;
+                derivativeChoice = equationDerivativeSin;
                 do {
-                    a = validInputDouble(GREEN"Enter a (from 1e-15 to 100):\n"RESET, conditionDoubleIntervals2);
-                    b = validInputDouble(GREEN"Enter b (from 1e-15 to 100):\n"RESET, conditionDoubleIntervals2);
+                    a = validInputDouble(GREEN"Enter a (from 1e-15 to 100):\n"RESET, conditionDoubleIntervalsSin);
+                    b = validInputDouble(GREEN"Enter b (from 1e-15 to 100):\n"RESET, conditionDoubleIntervalsSin);
                     if (a >= b)
                         printf(RED"Value of a must be less the value of b.\n"RESET);
                 } while (a >= b);
@@ -55,7 +55,7 @@ int main() {
         }
         double epsilon = validInputDouble(GREEN"Enter precision of calculations (from 1e-15 to 1e-1):\n"RESET,
                                           conditionDoubleEpsilon);
-        findAllRoots(functionChoice, derivativeChoice, a, b, t, epsilon, choiceMethod);
+        calculation(functionChoice, derivativeChoice, a, b, t, epsilon, choiceMethod);
         printf(GREEN"Press ENTER to continue, or any other key to exit.\n"RESET);
     } while (getch() == ENTER);
     return 0;
