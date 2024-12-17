@@ -8,7 +8,7 @@
 
 int main() {
     do {
-        double a = 0.0, b = 0.0, x = 0.0;
+        double a = 0.0, b = 0.0;
         double (*functionChoice)(double, double) = 0;
         double (*derivativeChoice)(double, double) = 0;
         printf(YELLOW"This program finds all roots of nonlinear equations in the given interval [a; b]\n"RESET);

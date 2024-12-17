@@ -135,7 +135,7 @@ void findAllRoots(double (*f)(double, double), double (*df)(double, double), dou
     double left = a;
     int precision = fabs(log10(epsilon));
     int rootsFound = 0;
-    double roots[MAX_ROOTS] = {0};
+    double roots[MAX_ROOTS] = {};
     while (left < b) {
         double right = fmin(left + STEP, b);
         double fLeft = f(left, t);
