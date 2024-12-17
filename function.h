@@ -12,25 +12,17 @@
 #define MAX_RANGE 100
 #define STEP 1e-6
 #define MAX_ITER 1e4
-#define MAX_ROOTS 10000
+#define MAX_ROOTS 1000
 
 bool conditionDoubleT(double value) {
     return (value < MIN_T || value > MAX_T);
 }
 
-bool conditionDoubleA1(double value) {
+bool conditionDoubleIntervals1(double value) {
     return ((value < MIN_RANGE || value > MAX_RANGE) || value == 0.0);
 }
 
-bool conditionDoubleB1(double value) {
-    return ((value < MIN_RANGE || value > MAX_RANGE) || value == 0.0);
-}
-
-bool conditionDoubleA2(double value) {
-    return (value < 1e-15);
-}
-
-bool conditionDoubleB2(double value) {
+bool conditionDoubleIntervals2(double value) {
     return (value < 1e-15);
 }
 
@@ -72,33 +64,29 @@ double f2(double x, double t) {
     return (sin(log(x)) - cos(log(x)) + t * log(x));
 }
 
-double fd2(double x, double t) {
-    return ((sin(log(x)) + cos(log(x)) + t) / x);
-}
-
 double fd1(double x, double t) {
     return ((t * sin(t / x) + 2.0 * cos(1.0 / x) - 1.0) / (x * x));
 }
 
-bool isAsymptote(double a, double b) {
-    return fabs(a) > 1e6 || fabs(b) > 1e6 || fabs(a - b) > 1e6;
+double fd2(double x, double t) {
+    return ((sin(log(x)) + cos(log(x)) + t) / x);
 }
 
 bool uniqueRoot(double roots[], int count, double new_root, double epsilon) {
     for (int i = 0; i < count; i++) {
         if (fabs(roots[i] - new_root) < epsilon) {
-            return 0;
+            return false;
         }
     }
-    return 1;
+    return true;
 }
 
 bool rootInInterval(double x, double a, double b) {
     if (x < a || x > b) {
         printf(RED"Root is out of the given interval.\n"RESET);
-        return 0;
+        return false;
     }
-    return 1;
+    return true;
 }
 
 double halfDivisionMethod(double (*f)(double, double), double a, double b, double t, double epsilon) {
@@ -143,9 +131,7 @@ double newtonMethod(double (*f)(double, double), double (*df)(double, double), d
     return x;
 }
 
-void
-findAllRoots(double (*f)(double, double), double (*df)(double, double), double a, double b, double t, double epsilon,
-             int method) {
+void findAllRoots(double (*f)(double, double), double (*df)(double, double), double a, double b, double t, double epsilon, int method) {
     double left = a;
     int precision = fabs(log10(epsilon));
     int rootsFound = 0;
@@ -154,7 +140,7 @@ findAllRoots(double (*f)(double, double), double (*df)(double, double), double a
         double right = fmin(left + STEP, b);
         double fLeft = f(left, t);
         double fRight = f(right, t);
-        if (isAsymptote(fLeft, fRight)) {
+        if (left <= 0 && right >= 0) {
             left = right;
             continue;
         }
@@ -173,7 +159,7 @@ findAllRoots(double (*f)(double, double), double (*df)(double, double), double a
             }
             if (uniqueRoot(roots, rootsFound, x, epsilon) && rootInInterval(x, a, b) && !isnan(x)) {
                 roots[rootsFound] = x;
-                printf(BLUE"Root x%02d: x = %.*lf\n"RESET, rootsFound, precision, x);
+                printf(BLUE"Root x%02d: x = %.*lf\n"RESET, rootsFound + 1, precision, x);
                 rootsFound++;
             }
         }

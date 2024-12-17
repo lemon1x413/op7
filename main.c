@@ -8,10 +8,10 @@
 
 int main() {
     do {
-        double a = 0.0, b = 0.0;
+        double a = 0.0, b = 0.0, x = 0.0;
         double (*functionChoice)(double, double) = 0;
         double (*derivativeChoice)(double, double) = 0;
-        printf(YELLOW"This program finds all roots in the given interval\n"RESET);
+        printf(YELLOW"This program finds all roots of nonlinear equations in the given interval [a; b]\n"RESET);
         char choiceFunction = validInputChoice(GREEN"Chose function:\n"
                                                YELLOW"1. cos(t / x) - 2 * sin(1 / x) + 1 / x\n"
                                                "2. sin(ln(x)) - cos(ln(x)) + t * ln(x)\n"RESET,
@@ -33,8 +33,8 @@ int main() {
                 functionChoice = f1;
                 derivativeChoice = fd1;
                 do {
-                    a = validInputDouble(GREEN"Enter a (from -100 to 100)[not 0]:\n"RESET, conditionDoubleA1);
-                    b = validInputDouble(GREEN"Enter b (from -100 to 100)[not 0]:\n"RESET, conditionDoubleB1);
+                    a = validInputDouble(GREEN"Enter a (from -100 to 100)[not 0]:\n"RESET, conditionDoubleIntervals1);
+                    b = validInputDouble(GREEN"Enter b (from -100 to 100)[not 0]:\n"RESET, conditionDoubleIntervals1);
                     if (a >= b)
                         printf(RED"Value of a must be less the value of b.\n"RESET);
                 } while (a >= b);
@@ -43,8 +43,8 @@ int main() {
                 functionChoice = f2;
                 derivativeChoice = fd2;
                 do {
-                    a = validInputDouble(GREEN"Enter a (from 1e-15 to 100):\n"RESET, conditionDoubleA2);
-                    b = validInputDouble(GREEN"Enter b (from 1e-15 to 100):\n"RESET, conditionDoubleB2);
+                    a = validInputDouble(GREEN"Enter a (from 1e-15 to 100):\n"RESET, conditionDoubleIntervals2);
+                    b = validInputDouble(GREEN"Enter b (from 1e-15 to 100):\n"RESET, conditionDoubleIntervals2);
                     if (a >= b)
                         printf(RED"Value of a must be less the value of b.\n"RESET);
                 } while (a >= b);
