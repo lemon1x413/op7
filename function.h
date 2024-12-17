@@ -1,15 +1,16 @@
 #ifndef OP7_FUNCTION_H
 #define OP7_FUNCTION_H
 
-#include "color.h"
 #include <stdbool.h>
+#include <math.h>
+#include "color.h"
 
 #define MIN_EPS 1e-15
 #define MAX_EPS 1e-1
-#define MIN_T -100
-#define MAX_T 100
-#define MIN_RANGE -100
-#define MAX_RANGE 100
+#define MIN_T -100.0
+#define MAX_T 100.0
+#define MIN_RANGE -100.0
+#define MAX_RANGE 100.0
 #define STEP 1e-6
 #define MAX_ITER 1e4
 #define MAX_ROOTS 1000
@@ -72,9 +73,9 @@ double equationDerivativeSin(double x, double t) {
     return ((sin(log(x)) + cos(log(x)) + t) / x);
 }
 
-bool uniqueRoot(double roots[], int count, double new_root, double epsilon) {
+bool uniqueRoot(double roots[], int count, double newRoot, double epsilon) {
     for (int i = 0; i < count; i++) {
-        if (fabs(roots[i] - new_root) < epsilon) {
+        if (fabs(roots[i] - newRoot) < epsilon) {
             return false;
         }
     }
