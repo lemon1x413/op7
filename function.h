@@ -7,11 +7,11 @@
 
 #define MIN_EPS 1e-15
 #define MAX_EPS 1e-1
-#define MIN_T -100.0
-#define MAX_T 100.0
-#define MIN_RANGE -100.0
-#define MAX_RANGE 100.0
-#define STEP 1e-6
+#define MIN_T -50.0
+#define MAX_T 50.0
+#define MIN_RANGE -50.0
+#define MAX_RANGE 50.0
+#define STEP 1e-3
 #define MAX_ITER 1e4
 #define MAX_ROOTS 1000
 
@@ -156,7 +156,7 @@ void calculation(double (*function)(double, double), double (*functionDerivative
             }
             if (uniqueRoot(roots, rootsFound, x, epsilon) && rootInInterval(x, a, b) && !isnan(x)) {
                 roots[rootsFound] = x;
-                printf(BLUE"Root x%02d: x = %.*lf\n"RESET, rootsFound + 1, precision, x);
+                printf(BLUE"Root x%03d: x = %.*lf\n"RESET, rootsFound + 1, precision, x);
                 rootsFound++;
             }
         }
